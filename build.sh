@@ -8,6 +8,7 @@ RFIO_PORT="${RFIO_PORT:-9090}"
 RFIO_BIND="${RFIO_BIND:-127.0.0.1}"
 SKIP_TOOLCHAIN_LLVM="${SKIP_TOOLCHAIN_LLVM:-0}"
 SKIP_VERILATOR_INSTALL="${SKIP_VERILATOR_INSTALL:-0}"
+SKIP_HARDWARE_DEPS="${SKIP_HARDWARE_DEPS:-0}"
 SKIP_RUN="${SKIP_RUN:-0}"
 
 if [[ "${CLEAN_VERILATOR:-0}" == "1" ]]; then
@@ -29,6 +30,19 @@ if [[ "${SKIP_VERILATOR_INSTALL}" != "1" ]]; then
   make -C "${ROOT_DIR}" verilator
 else
   echo "Skipping Verilator install build."
+fi
+
+if [[ "${SKIP_HARDWARE_DEPS}" != "1" ]]; then
+  echo "Checking out hardware dependencies..."
+  make -C "${ROOT_DIR}/hardware" checkout
+
+  echo "Applying hardware patches..."
+  make -C "${ROOT_DIR}/hardware" apply-patches
+
+  echo "Cleaning generated Verilator model after dependency patching..."
+  rm -rf "${ROOT_DIR}/hardware/build/verilator"
+else
+  echo "Skipping hardware dependency checkout and patches."
 fi
 
 echo "Building app: ${APP}"

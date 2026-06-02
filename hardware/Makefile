@@ -143,7 +143,15 @@ checkout: $(BENDER)
 # Patches
 .PHONY: apply-patches
 apply-patches: patches
-	cd deps/tech_cells_generic && git apply ../../patches/0001-tech-cells-generic-sram.patch
+	cd deps/tech_cells_generic && \
+	if git apply --reverse --check ../../patches/0001-tech-cells-generic-sram.patch >/dev/null 2>&1; then \
+		echo "tech_cells_generic SRAM patch already applied."; \
+	elif git apply --check ../../patches/0001-tech-cells-generic-sram.patch >/dev/null 2>&1; then \
+		git apply ../../patches/0001-tech-cells-generic-sram.patch; \
+	else \
+		echo "Could not apply tech_cells_generic SRAM patch." >&2; \
+		exit 1; \
+	fi
 
 # Library
 .PHONY: lib
