@@ -84,6 +84,7 @@ sources:
         - target: verilator
           files:
             # Level 2
+            - hardware/tb/rfio_apb.sv
             - hardware/tb/ara_tb_verilator.sv
 
     - target: spyglass

@@ -48,6 +48,9 @@ veril_library  ?= $(buildpath)/verilator
 veril_path     ?= $(abspath $(INSTALL_DIR)/verilator/bin)
 # verilator top-level
 veril_top      ?= ara_tb_verilator
+rfio_port      ?= 9090
+rfio_bind      ?= 127.0.0.1
+rfio_args      ?= --rfio-port=$(rfio_port) --rfio-bind=$(rfio_bind)
 # Top level module to compile
 top_level      ?= ara_tb
 # Questa version
@@ -205,6 +208,7 @@ $(veril_library)/V$(veril_top): $(config_file) Makefile ../Bender.yml $(shell fi
   -Wno-WIDTHCONCAT                                                              \
   -Wno-ENUMVALUE                                                                \
   -Wno-COMBDLY                                                                  \
+  -DVERILATOR=1                                                                 \
   tb/verilator/waiver.vlt                                                       \
   --Mdir $(veril_library)                                                       \
   -Itb/dpi                                                                      \
@@ -221,6 +225,7 @@ $(veril_library)/V$(veril_top): $(config_file) Makefile ../Bender.yml $(shell fi
   $(ROOT_DIR)/tb/verilator/lowrisc_dv_verilator_memutil_dpi/cpp/*.cc            \
   $(ROOT_DIR)/tb/verilator/lowrisc_dv_verilator_memutil_verilator/cpp/*.cc      \
   $(ROOT_DIR)/tb/verilator/lowrisc_dv_verilator_simutil_verilator/cpp/*.cc      \
+  $(ROOT_DIR)/tb/verilator/rfio_socket.cpp                                      \
   $(ROOT_DIR)/tb/verilator/ara_tb.cpp                                           \
   --cc                                                                          \
   $(if $(trace),--trace-fst -Wno-INSECURE,)                                     \
@@ -230,7 +235,7 @@ $(veril_library)/V$(veril_top): $(config_file) Makefile ../Bender.yml $(shell fi
 # Simulation
 .PHONY: simv
 simv:
-	$(veril_library)/V$(veril_top) $(if $(trace),-t,) -l ram,$(app_path)/$(app),elf
+	$(veril_library)/V$(veril_top) $(if $(trace),-t,) $(rfio_args) -l ram,$(app_path)/$(app),elf
 
 .PHONY: riscv_tests_simv
 riscv_tests_simv: $(tests)

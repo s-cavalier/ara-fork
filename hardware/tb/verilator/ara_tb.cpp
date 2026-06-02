@@ -10,6 +10,7 @@
 #include <iostream>
 
 #include "verilated_toplevel.h"
+#include "rfio_socket.h"
 #include "verilator_memutil.h"
 #include "verilator_sim_ctrl.h"
 
@@ -19,6 +20,8 @@ int main(int argc, char **argv) {
 
   // Initialize lowRISC's verilator utilities
   VerilatorMemUtil memutil;
+  RfioSocketBridge rfio;
+  RfioSocketBridge::SetGlobal(&rfio);
   VerilatorSimCtrl &simctrl = VerilatorSimCtrl::GetInstance();
   simctrl.SetTop(tb, &tb->clk_i, &tb->rst_ni,
                  VerilatorSimCtrlFlags::ResetPolarityNegative);
@@ -28,6 +31,7 @@ int main(int argc, char **argv) {
   memutil.RegisterMemoryArea(
                              "ram", "TOP.ara_tb_verilator.dut.i_ara_soc.i_dram", 64*NR_LANES/2, &l2_mem);
   simctrl.RegisterExtension(&memutil);
+  simctrl.RegisterExtension(&rfio);
 
   simctrl.SetInitialResetDelay(5);
   simctrl.SetResetDuration(5);

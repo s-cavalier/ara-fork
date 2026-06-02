@@ -97,6 +97,20 @@ module ara_testharness #(
    *  UART  *
    **********/
 
+`ifdef VERILATOR
+  rfio_apb i_rfio_apb (
+    .clk_i    (clk_i       ),
+    .rst_ni   (rst_ni      ),
+    .penable_i(uart_penable),
+    .pwrite_i (uart_pwrite ),
+    .paddr_i  (uart_paddr  ),
+    .psel_i   (uart_psel   ),
+    .pwdata_i (uart_pwdata ),
+    .prdata_o (uart_prdata ),
+    .pready_o (uart_pready ),
+    .pslverr_o(uart_pslverr)
+  );
+`else
   mock_uart i_mock_uart (
     .clk_i    (clk_i       ),
     .rst_ni   (rst_ni      ),
@@ -109,6 +123,7 @@ module ara_testharness #(
     .pready_o (uart_pready ),
     .pslverr_o(uart_pslverr)
   );
+`endif
 
 `ifndef TARGET_GATESIM
 
